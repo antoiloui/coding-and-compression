@@ -1,6 +1,7 @@
 import numpy
 import string
 import random
+import math
 
 def huffman_code(symbol_probability):
     # Base case of only two symbols
@@ -40,14 +41,15 @@ def lowest_prob_pair(symbol_probability):
     #         return sorted_prob[0][0], sorted_prob[1][0]
     #     else:
     #         return sorted_prob[1][0], sorted_prob[0][0]
-    
+
     return sorted_prob[0][0], sorted_prob[1][0]
 
 
 
 if __name__ == '__main__':
-    file = open("text.txt","r") 
+    expected_average_length = 0
 
+    file = open("text.txt","r") 
     text = file.read().lower()
     text_length = len(text)
     unique_char = list(set(text))
@@ -55,9 +57,9 @@ if __name__ == '__main__':
     special_char = [c for c in unique_char if c not in normal_chars]
     nb_chars = len(unique_char)
 
-    symbol_probability = {}
 
     # Computing probability of each unique character
+    symbol_probability = {}
     for c in unique_char:
         symbol_probability[c] = text.count(c)/text_length
 
@@ -73,37 +75,25 @@ if __name__ == '__main__':
             print("enter \t {:.6f} \t {}".format(prob, code))
         else:
             print("{} \t {:.6f} \t {}".format(symbol, prob, code))
+        expected_average_length += prob * len(huff_code[symbol])
 
     # Encode the text
+    # Don't mix up symbols '0' and '1' with encoded symbols
     encoded_text = text
+    encoded_text = encoded_text.replace('1', '!!!one!!!')
+    encoded_text = encoded_text.replace('0', huff_code['0'])
+    encoded_text = encoded_text.replace('!!!one!!!', huff_code['1'])
     for symbol in unique_char:
-        encoded_text = encoded_text.replace(symbol, huff_code[symbol])
-
-    # Expected average length of coding sample:
-    n_tries = 10
-    total_length = 0
-    for i in range(n_tries):
-        if i % 50 == 0:
-            print("{}\{}".format(i, n_tries))
-
-        #Compute huffman code     
-        huff_code = huffman_code(symbol_probability)
-        # print("huff_code['&']",huff_code['&'])
-        # print("huff_code['6']",huff_code['6'])
-        # print("huff_code['8']",huff_code['8'])
-        # print("huff_code['4']",huff_code['4'])
-
-        #Encode the text
-        encoded_text = text
-        for symbol in unique_char:
+        if symbol != '0' and symbol != '1':
             encoded_text = encoded_text.replace(symbol, huff_code[symbol])
-        print(len(encoded_text))
-        total_length += len(encoded_text)
-    expected_average_length = int(total_length/n_tries)
-    
+
+
+    print("Special characters : ", special_char)
+    print("Number of unique characters in the text: ",nb_chars)
     print("Total length of text is {} chars, so {} bits assuming unicode encoding (32 bit per char)".format(len(text), len(text)*32))
-    print("Expected average length of encoded text is {} bits".format(expected_average_length))
-    print("Compression rate is ", len(text) * 32 /expected_average_length)
+    print("Expected average length of encoded text is ceil({:.3f}) = {} bits".format(expected_average_length, math.ceil(expected_average_length)))
+    print("Empirical average length of encoded text is ceil({:.3f}) = {} bits".format(len(encoded_text)/len(text), math.ceil(len(encoded_text)/len(text))))
+    print("Compression rate is ", len(text) * 32 /len(encoded_text))
 
 
 
