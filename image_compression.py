@@ -55,4 +55,3 @@ if __name__ == "__main__":
 		os.mkdir(save_path)
 	for i,ii in enumerate(reconstructed_images):
 		scipy.misc.imsave(save_path+'image_{}.jpg'.format(i), ii)
-
