@@ -98,7 +98,7 @@ def hamming_encode(binary_signal):
 def hamming_decode(hamming_signal):
     """
     Function that decode a binary sequence of Hamming (7,4) codes.
-    Each code of 7 bits is in form : D0 D1 D2 D3 P0 P1 P2.
+    Each code of 7 bits is in form : (P0 P1 D0 P2 D1 D2 D3)
     """
     K = 7
     decoded_signal = ''
@@ -132,8 +132,6 @@ def hamming_decode(hamming_signal):
         hamming_signal = hamming_signal[K:]
 
     return decoded_signal
-
-
 
 
 if __name__ == "__main__":
