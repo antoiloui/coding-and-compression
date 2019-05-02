@@ -65,6 +65,7 @@ def lowest_prob_pair(symbol_probability):
 
 if __name__ == '__main__':
     expected_average_length = 0
+    source_entropy = 0
 
     file = open("text.txt","r") 
     text = file.read().lower()
@@ -89,14 +90,15 @@ if __name__ == '__main__':
 
     # Printing probability and code for each symbol
     sorted_prob = reversed(sorted(symbol_probability.items(), key=lambda x: x[1]))
-    print("Symbol \t Probability \t Code")
+    # print("Symbol \t Probability \t Code")
     for symbol, prob in sorted_prob:
         code = huff_code[symbol]
-        if symbol == '\n':
-            print("enter \t {:.6f} \t {}".format(prob, code))
-        else:
-            print("{} \t {:.6f} \t {}".format(symbol, prob, code))
+        # if symbol == '\n':
+        #     print("enter \t {:.6f} \t {}".format(prob, code))
+        # else:
+        #     print("{} \t {:.6f} \t {}".format(symbol, prob, code))
         expected_average_length += prob * len(code)
+        source_entropy -= prob * math.log(prob,2)
 
     # Encode the text
     # Don't mix up symbols '0' and '1' with encoded symbols
@@ -114,8 +116,11 @@ if __name__ == '__main__':
     print("Length of encoded text is : ", len(encoded_text))
 
     print("Total length of text is {} chars, so {} bits assuming unicode encoding (32 bit per char)".format(len(text), len(text)*32))
+    print("Length of encoded text is ", len(encoded_text))
     print("Expected average length of encoded text is ceil({:.3f}) = {} bits".format(expected_average_length, math.ceil(expected_average_length)))
     print("Empirical average length of encoded text is ceil({:.3f}) = {} bits".format(len(encoded_text)/len(text), math.ceil(len(encoded_text)/len(text))))
+    print("True source entropy is {} bits/symbol".format(source_entropy))
+    print("Independent symbols source entropy is {} bits/symbol".format(math.log(nb_chars,2)))
     print("Compression rate is (assuming 8 bit per symbol) ", len(text) * 8 /len(encoded_text))
     print("Compression rate is (assuming 32 bit per symbol) ", len(text) * 32 /len(encoded_text))
 
@@ -123,7 +128,8 @@ if __name__ == '__main__':
     print('#====================IMPROVED HUFFMAN CODING ======================#')
 
     huff_code = {}
-    expected_average_length_pairs = 0  
+    expected_average_length_pairs = 0
+    source_entropy_pairs = 0  
     unique_symbol_pairs = [char_1+char_2 for char_1 in unique_symbols for char_2 in unique_symbols]
 
     # Computing probability of each unique symbol pair
@@ -144,13 +150,15 @@ if __name__ == '__main__':
         for item in huff_code_list:
             huff_code[item[0]] = item[1] 
 
+        # Printing probability
         prob = symbol_pairs_probability[symbol]
         if prob != 0:
-            if symbol == '\n':
-                print("enter \t {:.8f}".format(prob))
-            else:
-                print("{} \t {:.8f}".format(symbol, prob))
+            # if symbol == '\n':
+            #     print("enter \t {:.8f}".format(prob))
+            # else:
+            #     print("{} \t {:.8f}".format(symbol, prob))
             expected_average_length_pairs += prob * len(code)
+            source_entropy_pairs -= prob * math.log(prob,2)
 
 
     # Encode the text
@@ -164,11 +172,11 @@ if __name__ == '__main__':
             encoded_text_pairs = encoded_text_pairs.replace(symbol_pair, huff_code[symbol_pair])
 
     print("Length of encoded text is : ", len(encoded_text_pairs))
-    print("Expected average length of encoded text is ceil({:.3f}) = {} bits".format(expected_average_length_pairs, math.ceil(expected_average_length_pairs)))
+    print("Expected average length of encoded text is ceil({:.3f}) = {} bits/symbol".format(expected_average_length_pairs, math.ceil(expected_average_length_pairs)))
     print("Empirical average length of encoded text is ceil({:.3f}) = {} bits".format(len(encoded_text_pairs)/len(text), math.ceil(len(encoded_text_pairs)/len(text))))
+    print("True source entropy is {} bits/symbol".format(source_entropy_pairs))
     print("Compression rate is (assuming 8 bit per symbol) ", len(text) * 8 /len(encoded_text_pairs))
     print("Compression rate is (assuming 32 bit per symbol) ", len(text) * 32 /len(encoded_text_pairs))
-
 
 
 
